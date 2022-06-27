@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  * Contributors:
- *     Apache Software Foundation 
+ *     Apache Software Foundation
  *     Australian National University - adaptation to DaCapo test harness
  */
 package org.dacapo.lusearch;
@@ -28,6 +28,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.dacapo.harness.LatencyReporter;
 
@@ -47,7 +49,7 @@ import org.apache.lucene.search.TopScoreDocCollector;
 
 /**
  * Simple command-line based search demo.
- * 
+ *
  * date:  $Date: 2009-12-24 11:19:36 +1100 (Thu, 24 Dec 2009) $
  * id: $Id: Search.java 738 2009-12-24 00:19:36Z steveb-oss $
  */
@@ -136,13 +138,27 @@ public class Search {
         i++;
       }
     }
+
     completed = 0;
     int totalQueries = totalQuerieSets * iterations * querySetSize;
     LatencyReporter.initialize(totalQueries, threads, querySetSize);
 
+    String dirName = System.getenv("MMTK_LUSEARCH_QUERYLOGS");
+    if (dirName == null) {
+      System.out.println("Please specify a directory name with the environment variable MMTK_LUSEARCH_QUERYLOGS!");
+      System.exit(1);
+    }
+
+    File csv = new File(dirName + "/" + System.currentTimeMillis() + "-querylog.csv");
+
+    AtomicInteger queryIdx = new AtomicInteger();
+    String[] names = new String[totalQueries];
+    long[] startTimes = new long[totalQueries];
+    long[] execTimes = new long[totalQueries];
+
     for (int j = 0; j < threads; j++) {
       LatencyReporter lr = new LatencyReporter(j, threads, totalQueries, querySetSize*iterations);
-      new QueryThread(this, "Query" + j, j, threads, totalQuerieSets, index, outBase, queryBase, field, normsField, raw, hitsPerPage, iterations, lr).start();
+      new QueryThread(this, "Query" + j, j, threads, totalQuerieSets, index, outBase, queryBase, field, normsField, raw, hitsPerPage, iterations, lr, names, startTimes, execTimes, queryIdx).start();
     }
     synchronized (this) {
       while (completed != totalQuerieSets*iterations) {
@@ -152,6 +168,12 @@ public class Search {
         }
       }
       System.out.println();
+    }
+
+    try (PrintWriter pw = new PrintWriter(csv)) {
+      for (int i = 0; i < totalQueries; i++) {
+        pw.println(names[i] + "," + startTimes[i] + "," + execTimes[i]);
+      }
     }
   }
 
@@ -171,9 +193,13 @@ public class Search {
     int hitsPerPage;
     int iterations;
     LatencyReporter reporter;
+    String[] names;
+    long[] startTimes;
+    long[] execTimes;
+    AtomicInteger queryIdx;
 
     public QueryThread(Search parent, String name, int id, int threadCount, int totalQueries, String index, String outBase, String queryBase, String field,
-        String normsField, boolean raw, int hitsPerPage, int iterations, LatencyReporter reporter) {
+        String normsField, boolean raw, int hitsPerPage, int iterations, LatencyReporter reporter, String[] names, long[] startTimes, long[] execTimes, AtomicInteger queryIdx) {
       super(name);
       this.parent = parent;
       this.id = id;
@@ -189,6 +215,10 @@ public class Search {
       this.hitsPerPage = hitsPerPage;
       this.iterations = iterations;
       this.reporter = reporter;
+      this.names = names;
+      this.startTimes = startTimes;
+      this.execTimes = execTimes;
+      this.queryIdx = queryIdx;
     }
 
     public void run() {
@@ -197,7 +227,7 @@ public class Search {
         for (int r = 0; r < iterations; r++) {
           for (int i = 0, queryId = id; i < count; i++, queryId += threadCount) {
             // make and run query
-            new QueryProcessor(parent, name, queryId, index, outBase, queryBase, field, normsField, raw, hitsPerPage, totalQueries, iterations, reporter).run();
+            new QueryProcessor(parent, name, queryId, index, outBase, queryBase, field, normsField, raw, hitsPerPage, totalQueries, iterations, reporter, names, startTimes, execTimes, queryIdx).run();
           }
         }
       } catch (Exception e) {
@@ -210,6 +240,7 @@ public class Search {
   public class QueryProcessor {
 
     Search parent;
+    String name;
     String field;
     int hitsPerPage;
     boolean raw;
@@ -221,9 +252,13 @@ public class Search {
     int iterations;
     int fivePercent;
     LatencyReporter reporter;
+    String[] names;
+    long[] startTimes;
+    long[] execTimes;
+    AtomicInteger queryIdx;
 
     public QueryProcessor(Search parent, String name, int id, String index, String outBase, String queryBase, String field, String normsField, boolean raw,
-        int hitsPerPage, int totalQueries, int iterations, LatencyReporter reporter) {
+        int hitsPerPage, int totalQueries, int iterations, LatencyReporter reporter, String[] names, long[] startTimes, long[] execTimes, AtomicInteger queryIdx) {
       this.parent = parent;
       this.field = field;
       this.raw = raw;
@@ -231,13 +266,18 @@ public class Search {
       this.fivePercent = iterations*totalQueries/20;
       this.iterations = iterations;
       this.reporter = reporter;
+      this.names = names;
+      this.startTimes = startTimes;
+      this.execTimes = execTimes;
+      this.queryIdx = queryIdx;
       try {
         reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
         /*if (normsField != null)
           reader = new OneNormsReader(reader, normsField);*/
         searcher = new IndexSearcher(reader);
 
-        String query = queryBase + File.separator + "query" + (id < 10 ? "000" : (id < 100 ? "00" : (id < 1000 ? "0" : ""))) + id + ".txt";
+        this.name = "query" + (id < 10 ? "000" : (id < 100 ? "00" : (id < 1000 ? "0" : ""))) + id;
+        String query = queryBase + File.separator + this.name + ".txt";
         in = new BufferedReader(new FileReader(query));
         out = new PrintWriter(new BufferedWriter(new FileWriter(outBase + id)));
 
@@ -264,17 +304,24 @@ public class Search {
           line = line.toLowerCase();
 
         Query query = null;
+        int idx = queryIdx.getAndIncrement();
         try {
           query = parser.parse(line);
         } catch (Exception e) {
           System.err.println("Failed to process query: '"+line+"'");
           e.printStackTrace();
         }
+        Instant start = Instant.now();
+        long startTime = System.nanoTime();
         reporter.start();
         searcher.search(query, 10);
 
         doPagingSearch(query);
         reporter.end();
+        long execTime = System.nanoTime() - startTime;
+        names[idx] = name;
+        startTimes[idx] = start.getEpochSecond() * 1000 * 1000 * 1000 + start.getNano();
+        execTimes[idx] = execTime;
       }
 
       reader.close();
@@ -296,12 +343,12 @@ public class Search {
      * This demonstrates a typical paging search scenario, where the search
      * engine presents pages of size n to the user. The user can then go to the
      * next page if interested in the next hits.
-     * 
+     *
      * When the query is executed for the first time, then only enough results
      * are collected to fill 5 result pages. If the user wants to page beyond
      * this limit, then the query is executed another time and all hits are
      * collected.
-     * 
+     *
      */
     public void doPagingSearch(Query query) throws IOException {
 
