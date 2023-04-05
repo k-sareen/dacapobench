@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  -->
 <project name="DacapoBenchmarks" default="dist" basedir=".">
@@ -105,7 +105,7 @@
         <check.dependency command="git"/>
         <check.dependency command="cvs"/>
         <check.dependency command="svn"/>
-        <check.dependency command="python"/>
+        <check.dependency command="python3"/>
         <check.dependency command="node"/>
         <check.dependency command="npm"/>
 
@@ -144,7 +144,7 @@
         <property name="file-name" value="dependency-check.py"/>
 
         <!-- checking python modules -->
-        <exec executable="python" failonerror="yes">
+        <exec executable="python3" failonerror="yes">
             <arg value="-c"/>
             <arg value="import requests"/>
         </exec>
@@ -200,7 +200,7 @@
         <mkdir dir="${log.build.dir}" />
         <mkdir dir="${dacapo.build.dir}" />
         <mkdir dir="${dacapo.build.doc.dir}"/>
-    	
+
         <echo>build.nickname=${build.nickname}</echo>
         <echo>build.version=${build.version}</echo>
     </target>
@@ -266,17 +266,17 @@
                 <include name="benchmarks/bms/pmd/mvn_toolchain_setup.sh"/>
 
                 <!-- add eclipse's plugin -->
-                <include name="benchmarks/bms/eclipse/plugin/META-INF/**"/>
-                <include name="benchmarks/bms/eclipse/plugin/src/**"/>
-                <include name="benchmarks/bms/eclipse/plugin/*.xml"/>
-                <include name="benchmarks/bms/eclipse/plugin/build.properties"/>
-                <include name="benchmarks/bms/eclipse/plugin/javaCompiler...args"/>
-                <include name="benchmarks/bms/eclipse/bundles-default.lst"/>
-                <include name="benchmarks/bms/eclipse/bundles-required.lst"/>
-                <include name="benchmarks/bms/eclipse/bundles-stub-required.lst"/>
+                <!-- <include name="benchmarks/bms/eclipse/plugin/META-INF/**"/> -->
+                <!-- <include name="benchmarks/bms/eclipse/plugin/src/**"/> -->
+                <!-- <include name="benchmarks/bms/eclipse/plugin/*.xml"/> -->
+                <!-- <include name="benchmarks/bms/eclipse/plugin/build.properties"/> -->
+                <!-- <include name="benchmarks/bms/eclipse/plugin/javaCompiler...args"/> -->
+                <!-- <include name="benchmarks/bms/eclipse/bundles-default.lst"/> -->
+                <!-- <include name="benchmarks/bms/eclipse/bundles-required.lst"/> -->
+                <!-- <include name="benchmarks/bms/eclipse/bundles-stub-required.lst"/> -->
 
-               <!-- add daytrader plugin -->
-                <include name="benchmarks/libs/daytrader/daytrader/**"/>
+                <!-- add daytrader plugin -->
+                <!-- <include name="benchmarks/libs/daytrader/daytrader/**"/> -->
 
                 <!-- add tools -->
                 <include name="tools/**"/>
@@ -289,19 +289,35 @@
                 <exclude name="benchmarks/bms/bloat/**"/>
                 <exclude name="benchmarks/bms/chart/**"/>
                 <exclude name="benchmarks/bms/hsqldb/**"/>
+                <exclude name="benchmarks/bms/avrora/**"/>
+                <exclude name="benchmarks/bms/batik/**"/>
+                <exclude name="benchmarks/bms/biojava/**"/>
+                <exclude name="benchmarks/bms/cassandra/**"/>
+                <exclude name="benchmarks/bms/eclipse/**"/>
+                <exclude name="benchmarks/bms/graphchi/**"/>
+                <exclude name="benchmarks/bms/h2/**"/>
+                <exclude name="benchmarks/bms/h2o/**"/>
+                <exclude name="benchmarks/bms/jython/**"/>
+                <exclude name="benchmarks/bms/kafka/**"/>
+                <exclude name="benchmarks/bms/spring/**"/>
+                <exclude name="benchmarks/bms/sunflow/**"/>
+                <exclude name="benchmarks/bms/tomcat/**"/>
+                <exclude name="benchmarks/bms/tradebeans/**"/>
+                <exclude name="benchmarks/bms/tradesoap/**"/>
+                <exclude name="benchmarks/bms/zxing/**"/>
                 <exclude name="tools/*/bin/**"/>
             </zipfileset>
         </zip>
     </target>
 
-    <!-- ================================= 
-         target: dist              
+    <!-- =================================
+         target: dist
          ================================= -->
     <target name="dist" depends="harness,bytecode-transformer,compile,update-externdata-info,create-zip"/>
 
     <target name="doc" depends="init,bootstrap,harness" description="make the top level documentation"/>
 
-	
+
     <!-- =================================
          target: bootstrap for running harness
          ================================= -->
@@ -348,14 +364,14 @@
         <delete dir="${dacapao.out.jar.dir}"/>
     </target>
 
-    <!-- ================================= 
+    <!-- =================================
          target: compile  all sources
          ================================= -->
-    <target name="compile" depends="avrora,batik,biojava,cassandra,eclipse,fop,graphchi,h2,h2o,jme,jython,kafka,luindex,lusearch,pmd,spring,sunflow,tomcat,tradebeans,tradesoap,xalan,zxing">
+    <target name="compile" depends="fop,jme,luindex,lusearch,pmd,xalan">
         <antcall target="build.status.fail" />
         <antcall target="build.status.pass" />
     </target>
-	
+
 
     <property name="mvn-home" location="${toolsdir}/apache-maven-${mvn.version}/bin"/>
     <property name="mvn-exe" value="${mvn-home}/mvn"/>
@@ -363,8 +379,8 @@
         <os family="windows"/>
     </condition>
 
-    <!-- ================================= 
-         target: harness           
+    <!-- =================================
+         target: harness
          ================================= -->
     <target name="harness" depends="bytecode-transformer" description="build harness and bytecode transformer"/>
 
@@ -467,7 +483,7 @@
     </target>
 
     <target name="clean" depends="clean-benchmarks,clean-libs,clean-harness,clean-bootstrap"/>
-  
+
     <!-- *************************************************************************** -->
     <!--                            Build                                            -->
     <!-- *************************************************************************** -->
@@ -612,7 +628,7 @@ See ${log.build.report} for a summary of benchmark build status.
     <target name="create-zip-directory" depends="set-build-version-info,set-delete-zip-dir-property,delete-zip-directory">
         <property name="build.target-jars" value="${build.target-dir}/jar"/>
         <property name="build.target-data" value="${build.target-dir}/dat"/>
-        
+
         <mkdir dir="${build.target-jars}"/>
         <mkdir dir="${build.target-data}"/>
     </target>

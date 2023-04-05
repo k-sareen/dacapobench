@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  */
 package org.dacapo.xalan;
@@ -29,7 +29,7 @@ import javax.xml.transform.stream.StreamSource;
 public class XSLTBench {
 
   private static final boolean VERBOSE = false;
-  private static final String XALAN_VERSION = "Xalan Java 2.7.2";
+  private static final String XALAN_VERSION = "Xalan Java 2.7.1";
   private static final String[] FILE_LIST = {
     "xalan/acks.xml",
     "xalan/binding.xml",
@@ -89,7 +89,7 @@ public class XSLTBench {
 
   /**
    * Called before the start of a benchmark iteration
-   * 
+   *
    * @param threads Number of worker threads
    * @param runs Number of times to process each file
    */
@@ -105,11 +105,11 @@ public class XSLTBench {
 
   /**
    * The heart of a benchmark iteration
-   * 
+   *
    * @throws InterruptedException
    */
   public void doWork() throws InterruptedException {
-    for (int i = 0; i < workers.length; i++) 
+    for (int i = 0; i < workers.length; i++)
       workers[i].start();
 
     for (int i = 0; i < workers.length; i++) {
