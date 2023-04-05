@@ -46,8 +46,14 @@ public class Data {
 
   private static String getDefaultLocation() {
     try {
-      String jar =  new File(Data.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getAbsolutePath();
-      return jar.replace(".jar","");
+      String path = System.getProperty("java.class.path");
+      for (String p : path.split(":")) {
+        if (p.contains("android-chopin.jar")) {
+          path = p.replaceAll(".jar", "");
+          break;
+        }
+      }
+      return new File(path).getAbsolutePath();
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(-1);
