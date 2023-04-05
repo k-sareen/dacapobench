@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  */
 package org.dacapo.harness;
@@ -11,7 +11,6 @@ package org.dacapo.harness;
 import java.io.*;
 import java.nio.file.Files;
 import java.security.MessageDigest;
-import javax.xml.bind.DatatypeConverter;
 
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -33,7 +32,7 @@ import org.dacapo.parser.Config;
  * Each DaCapo benchmark is represented by an instance of this abstract class.
  * It defines the methods that the benchmark harness calls during the running of
  * the benchmark.
- * 
+ *
  * date:  $Date: 2009-12-24 11:19:36 +1100 (Thu, 24 Dec 2009) $
  * id: $Id: Benchmark.java 738 2009-12-24 00:19:36Z steveb-oss $
  */
@@ -112,7 +111,7 @@ public abstract class Benchmark {
    * utilizing this timeout.dialation property.
    */
   protected static String timeoutDialation = "1";
-  
+
   /**
    * Should we dump latency stats to csv file
    */
@@ -172,7 +171,7 @@ public abstract class Benchmark {
 
   /**
    * The system properties that were in effect when the harness was started.
-   * 
+   *
    * @see System#getProperties()
    */
   private Properties savedSystemProperties;
@@ -201,7 +200,7 @@ public abstract class Benchmark {
   /**
    * Run a benchmark. This is final because individual benchmarks should not
    * interfere with the flow of control.
-   * 
+   *
    * @param callback The user-specified timing callback
    * @param size The size (as given on the command line)
    * @return Whether the run was valid or not.
@@ -252,7 +251,7 @@ public abstract class Benchmark {
   /**
    * When an instance of a Benchmark is created, it is expected to prepare its
    * scratch directory, unloading files from the jar file if required.
-   * 
+   *
    * @param scratch Scratch directory
    */
   public Benchmark(Config config, File scratch, File data) throws Exception {
@@ -315,7 +314,7 @@ public abstract class Benchmark {
    *  - check that the files have the correct checksums
    *  - add the path to the file to the jar or data dependency set.
    * returning true if successful.
-   * 
+   *
    * @param dependencyFile Path to the file of dependencies to be checked.
    * @return True if successful, false otherwise.
    */
@@ -364,6 +363,17 @@ public abstract class Benchmark {
     return success;
   }
 
+  private static final char[] hexCode = "0123456789ABCDEF".toCharArray();
+
+  private static String printHexBinary(byte[] data) {
+    StringBuilder r = new StringBuilder(data.length * 2);
+    for (byte b : data) {
+      r.append(hexCode[(b >> 4) & 0xF]);
+      r.append(hexCode[(b & 0xF)]);
+    }
+    return r.toString();
+  }
+
   /**
    * Return the MD5 sum for the specified file.
    */
@@ -376,7 +386,7 @@ public abstract class Benchmark {
       md.update(buffer, 0, bytesRead);
     }
     stream.close();
-    return DatatypeConverter.printHexBinary(md.digest());
+    return printHexBinary(md.digest());
   }
 
   /**
@@ -428,9 +438,9 @@ public abstract class Benchmark {
 
   /**
    * One-off preparation performed once we know the benchmark size.
-   * 
+   *
    * By default, does nothing.
-   * 
+   *
    * @param size The size (as defined in the per-benchmark configuration file).
    */
   protected void prepare(String size) throws Exception {
@@ -438,10 +448,10 @@ public abstract class Benchmark {
 
   /**
    * Benchmark-specific per-iteration setup, outside the timing loop.
-   * 
+   *
    * Needs to take care of any *required* cleanup when the -preserve flag us
    * used.
-   * 
+   *
    * @param size Size as specified by the "-s" command line flag
    */
   public void preIteration(String size) throws Exception {
@@ -452,7 +462,7 @@ public abstract class Benchmark {
         System.out.print(args[i] + " ");
       System.out.println();
     }
-  
+
     /*
      * Allow those benchmarks that can't tolerate overwriting prior output to
      * run in the face of the '-preserve' flag.
@@ -492,7 +502,7 @@ public abstract class Benchmark {
   /**
    * Augments the system properties in case additional properties need to be in
    * effect during the actual benchmark iteration.
-   * 
+   *
    * @param systemProperties the system properties that need to be augmented.
    *   (They may be modified freely.)
    */
@@ -500,7 +510,7 @@ public abstract class Benchmark {
 
   /**
    * An actual iteration of the benchmark. This is what is timed.
-   * 
+   *
    * @param size Argument to the benchmark iteration.
    */
   public abstract void iterate(String size) throws Exception;
@@ -548,7 +558,7 @@ public abstract class Benchmark {
   /**
    * Perform validation of output. By default process the conditions specified
    * in the config file.
-   * 
+   *
    * @param size Size of the benchmark run.
    * @return true if the output was correct
    */
@@ -672,7 +682,7 @@ public abstract class Benchmark {
   /**
    * Per-iteration cleanup, outside the timing loop. By default it deletes the
    * named output files.
-   * 
+   *
    * @param size Argument to the benchmark iteration.
    */
   public void postIteration(String size) throws Exception {
@@ -681,10 +691,10 @@ public abstract class Benchmark {
       postIterationCleanup(size);
     }
   }
- 
+
   /**
    * Perform post-iteration cleanup.
-   * 
+   *
    * @param size Argument to the benchmark iteration.
    */
   protected void postIterationCleanup(String size) {
@@ -714,7 +724,7 @@ public abstract class Benchmark {
 
   /**
    * Translate a resource name into a URL.
-   * 
+   *
    * @param fn
    * @return
    */
@@ -728,7 +738,7 @@ public abstract class Benchmark {
 
   /**
    * Return a file name, relative to the specified scratch directory.
-   * 
+   *
    * @param name Name of the file, relative to the top of the scratch directory
    * @return The path name of the file
    */
@@ -750,7 +760,7 @@ public abstract class Benchmark {
   /**
    * Unpack a zip file resource into the specified directory. The directory
    * structure of the zip archive is preserved.
-   * 
+   *
    * @param name
    * @param destination
    * @throws IOException

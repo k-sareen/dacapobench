@@ -21,7 +21,6 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import javax.net.ssl.*;
-import javax.xml.bind.DatatypeConverter;
 
 import java.security.MessageDigest;
 import java.util.concurrent.Executor;
@@ -217,6 +216,17 @@ public class Data {
     DataDownload.download(itemRelPath, path.getAbsolutePath());
   }
 
+  private static final char[] hexCode = "0123456789ABCDEF".toCharArray();
+
+  private static String printHexBinary(byte[] data) {
+    StringBuilder r = new StringBuilder(data.length * 2);
+    for (byte b : data) {
+      r.append(hexCode[(b >> 4) & 0xF]);
+      r.append(hexCode[(b & 0xF)]);
+    }
+    return r.toString();
+  }
+
   private static String getMD5(File file) throws Exception{
       MessageDigest md = MessageDigest.getInstance("MD5");
       byte [] buffer = new byte [1024 * 1024 * 32]; // 32 MB buffer
@@ -225,7 +235,7 @@ public class Data {
       while ((bytesRead = stream.read(buffer)) != -1) {
         md.update(buffer, 0, bytesRead);
       }
-      return DatatypeConverter.printHexBinary(md.digest());
+      return printHexBinary(md.digest());
   }
 
   private static void disableSslVerification() {
