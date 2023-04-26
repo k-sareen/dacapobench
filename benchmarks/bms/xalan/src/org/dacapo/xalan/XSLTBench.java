@@ -155,6 +155,7 @@ public class XSLTBench {
           transformer.transform(inFile, outFile);
           inputStream.close();
         }
+        outputStream.close();
       } catch (TransformerConfigurationException e) {
         e.printStackTrace();
       } catch (TransformerException e) {
