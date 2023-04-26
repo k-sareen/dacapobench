@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  */
 package org.dacapo.harness;
@@ -23,16 +23,20 @@ import java.util.Set;
 
 import org.dacapo.parser.Config;
 
+// Android specific imports
+import dalvik.system.DexClassLoader;
+
 /**
  * Custom class loader for the dacapo benchmarks. Instances of this classloader
  * are created by passing a list of jar files. This allows us to package a
  * benchmark as a set of jar files, rather than having to mix the classes for
  * all the benchmarks into the dacapo jar file.
- * 
+ *
  * date:  $Date: 2009-12-24 11:19:36 +1100 (Thu, 24 Dec 2009) $
  * id: $Id: DacapoClassLoader.java 738 2009-12-24 00:19:36Z steveb-oss $
  */
 public class DacapoClassLoader extends URLClassLoader {
+  List<DexClassLoader> dexClassLoaders;
 
   private static void sortURLs(URL[] urls) {
     Map<String, URL> m = new TreeMap<>();
@@ -47,7 +51,7 @@ public class DacapoClassLoader extends URLClassLoader {
   /**
    * Factory method to create the class loader to be used for each invocation of
    * this benchmark
-   * 
+   *
    * @param config The config file, which contains information about the jars
    * this benchmark depends on
    * @param scratch The scratch directory (in which some of the jars may be located)
@@ -67,7 +71,8 @@ public class DacapoClassLoader extends URLClassLoader {
            System.out.println("  " + url.toString());
          }
       }
-      rtn = new DacapoClassLoader(urls, ClassLoader.getSystemClassLoader());
+      File dexOutputPath = new File(scratch, "dex");
+      rtn = new DacapoClassLoader(urls, ClassLoader.getSystemClassLoader(), dexOutputPath);
     } catch (Exception e) {
       System.err.println("Unable to create loader for " + config.name + ":");
       e.printStackTrace();
@@ -86,9 +91,16 @@ public class DacapoClassLoader extends URLClassLoader {
   /**
    * @param urls
    * @param parent
+   * @param dexOutputPath The output folder for the .dex files for Android
    */
-  public DacapoClassLoader(URL[] urls, ClassLoader parent) {
+  public DacapoClassLoader(URL[] urls, ClassLoader parent, File dexOutputPath) {
     super(urls, parent);
+    dexClassLoaders = new ArrayList<>();
+    for (URL url : urls) {
+      DexClassLoader dexClassLoader = new DexClassLoader(url.getPath(), dexOutputPath.getAbsolutePath(), null, parent);
+      dexClassLoaders.add(dexClassLoader);
+      // parent = dexClassLoader;
+    }
   }
 
   /**
@@ -103,7 +115,7 @@ public class DacapoClassLoader extends URLClassLoader {
   /**
    * Get a list of jars (if any) which should be in the classpath for this
    * benchmark
-   * 
+   *
    * @param config The config file for this benchmark, which lists the jars
    * @param scratch The scratch directory (in which some of the jars may be located)
    * @param data The data directory (in which externally packaged jars will be located)
@@ -140,22 +152,35 @@ public class DacapoClassLoader extends URLClassLoader {
     // First, check if the class has already been loaded
     Class<?> c = findLoadedClass(name);
     if (c == null) {
-       if (name.startsWith("java.")) {
-         // security: core classes should go directly to parent
-         c = super.loadClass(name, resolve);
-       } else {
-        try {
-          // Next, try to resolve it from the dacapo JAR files
-          c = super.findClass(name);
-        } catch (ClassNotFoundException e) {
+      boolean found = false;
+      if (name.startsWith("java.")) {
+        // security: core classes should go directly to parent
+        c = super.loadClass(name, resolve);
+      } else {
+        // Next, try to resolve it from the dacapo JAR files
+        for (int i = dexClassLoaders.size() - 1; i >= 0; i--) {
+          DexClassLoader dexClassLoader = dexClassLoaders.get(i);
+          try {
+            c = dexClassLoader.loadClass(name);
+          } catch (ClassNotFoundException e) {
+            continue;
+          }
+
+          found = true;
+          break;
+        }
+
+        if (!found) {
           // And if all else fails delegate to the parent.
           c = super.loadClass(name, resolve);
         }
       }
     }
+
     if (resolve) {
       resolveClass(c);
     }
+
     return c;
   }
 }
