@@ -289,6 +289,8 @@
                 <exclude name="benchmarks/bms/bloat/**"/>
                 <exclude name="benchmarks/bms/chart/**"/>
                 <exclude name="benchmarks/bms/hsqldb/**"/>
+
+                <!-- exclude benchmarks for Android -->
                 <exclude name="benchmarks/bms/avrora/**"/>
                 <exclude name="benchmarks/bms/batik/**"/>
                 <exclude name="benchmarks/bms/biojava/**"/>
