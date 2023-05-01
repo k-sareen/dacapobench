@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  -->
 <project name="common">
@@ -157,7 +157,7 @@
 		</chmod>
 	</target>
 
-	<target name="benchmark" depends="bm-build, jar, data-copy-checksum, data-perms"/>
+	<target name="benchmark" depends="bm-build, jar, dex-compile-jars, data-copy-checksum, data-perms"/>
 
 	<target name="data-perms"/>
 
@@ -210,6 +210,8 @@
 
 	<target name="jar"/>
 
+	<target name="dex-compile-jars"/>
+
 	<target name="complete">
 		<unjar src="${build.target-jar}" dest="${bm-output-dir}" overwrite="yes">
 			<patternset>
@@ -224,6 +226,12 @@
 		</java>
 		<copy file="${temp.file}" tofile="${bm-output-dir}/doc/menu.html"/>
 		<delete file="${temp.file}"/>
-		<jar jarfile="${build.target-jar}" basedir="${bm-output-dir}" update="true"/>
+                <jar jarfile="${build.target-jar}" basedir="${bm-output-dir}" update="true"/>
+                <dex-compile input="${build.target-jar}" output="android-chopin.jar"/>
+                <jar jarfile="android-chopin.jar" basedir="${bm-output-dir}" update="true">
+                    <patternset>
+                        <include name="META-INF/**"/>
+                    </patternset>
+                </jar>
 	</target>
 </project>

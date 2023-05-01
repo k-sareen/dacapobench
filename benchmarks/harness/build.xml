@@ -1,8 +1,6 @@
 <project name="harness" default="all" basedir="..">
     <description>DaCapo benchmark harness</description>
 
-    <property environment="env"/>
-
     <import file="../util.xml"/>
     <import file="../libs/libs.xml"/>
 
@@ -48,16 +46,13 @@
     <property name="bm-out-jar" value="${base-dir}/tmp"/>
 
     <!-- Android specific properties -->
-    <property name="android.sdk" location="${env.ANDROID_SDK}"/>
-    <property name="android.platform" value="android-33"/>
-    <property name="android.platform.lib" location="${android.sdk}/platforms/${android.platform}"/>
     <path id="project.class.path">
         <pathelement location="${output-dir}"/>
         <pathelement location="${build.target-jars}/${allocation-instrumenter-name}"/>
         <pathelement location="${android.platform.lib}/android.jar"/>
     </path>
 
-    <target name="all" depends="clean,init,harness,jar"/>
+    <target name="all" depends="clean,init,harness,jar,dex-compile-jars"/>
 
     <target name="clean">
         <delete dir="${output-dir}"/>
@@ -172,5 +167,10 @@
 
     <target name="jar">
         <jar jarfile="${build.target-jar}" basedir="${output-dir}" update="true"/>
+    </target>
+
+    <target name="dex-compile-jars">
+        <dex-compile input="${build.target-jar}" output="android-chopin.jar"/>
+        <jar jarfile="android-chopin.jar" basedir="${output-dir}" update="yes"/>
     </target>
 </project>

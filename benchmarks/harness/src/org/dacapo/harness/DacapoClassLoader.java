@@ -36,7 +36,7 @@ import dalvik.system.DexClassLoader;
  * id: $Id: DacapoClassLoader.java 738 2009-12-24 00:19:36Z steveb-oss $
  */
 public class DacapoClassLoader extends URLClassLoader {
-  List<DexClassLoader> dexClassLoaders;
+  DexClassLoader[] dexClassLoaders;
 
   private static void sortURLs(URL[] urls) {
     Map<String, URL> m = new TreeMap<>();
@@ -95,11 +95,12 @@ public class DacapoClassLoader extends URLClassLoader {
    */
   public DacapoClassLoader(URL[] urls, ClassLoader parent, File dexOutputPath) {
     super(urls, parent);
-    dexClassLoaders = new ArrayList<>();
+    dexClassLoaders = new DexClassLoader[urls.length];
+    int i = 0;
     for (URL url : urls) {
       DexClassLoader dexClassLoader = new DexClassLoader(url.getPath(), dexOutputPath.getAbsolutePath(), null, parent);
-      dexClassLoaders.add(dexClassLoader);
-      // parent = dexClassLoader;
+      dexClassLoaders[i] = dexClassLoader;
+      i++;
     }
   }
 
@@ -158,8 +159,7 @@ public class DacapoClassLoader extends URLClassLoader {
         c = super.loadClass(name, resolve);
       } else {
         // Next, try to resolve it from the dacapo JAR files
-        for (int i = dexClassLoaders.size() - 1; i >= 0; i--) {
-          DexClassLoader dexClassLoader = dexClassLoaders.get(i);
+        for (DexClassLoader dexClassLoader : dexClassLoaders) {
           try {
             c = dexClassLoader.loadClass(name);
           } catch (ClassNotFoundException e) {

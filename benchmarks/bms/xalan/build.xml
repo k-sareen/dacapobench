@@ -49,4 +49,10 @@
         <copy file="${xalan-top}/build/serializer.jar" todir="${bm-jars}"/>
     </target>
 
+    <target name="dex-compile-jars">
+        <dex-compile input="${bm-jars}/dacapo-${bm-name}.jar" output="${bm-jars}/dacapo-${bm-name}.jar"/>
+        <dex-compile input="${bm-jars}/xalan.jar" output="${bm-jars}/xalan.jar"/>
+        <dex-compile input="${bm-jars}/serializer.jar" output="${bm-jars}/serializer.jar"/>
+    </target>
+
 </project>

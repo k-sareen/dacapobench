@@ -1,7 +1,7 @@
 <project name="xerces" default="all" basedir="../..">
     <description>xerces library, required by xalan</description>
     <property file="dacapo.properties"/>
-    
+
     <property name="lib-name" value="xerces"/>
     <property name="lib-version" value="2.8.0"/>
     <property name="lib-_version" value="2_8_0"/>
@@ -9,11 +9,11 @@
     <property name="lib-src" value="Xerces-J-bin.${lib-version}.tar.gz"/>
 
     <import file="../common.xml"/>
-    
+
     <property name="lib-build-top" value="${lib-build-dir}/${lib-name}-${lib-_version}"/>
 
     <target name="unpack" depends="untar"/>
-        
+
     <target name="build">
         <condition property="xerces-jar" value="${lib-build-top}/xerces.jar" else="${lib-build-top}/xercesImpl.jar">
             <contains string="${lib-version}" substring="1.4.4"/>
@@ -22,17 +22,22 @@
             <contains string="${lib-version}" substring="2.2.1"/>
         </condition>
     </target>
-        
+
      <target name="jar" depends="lib-deps">
         <copy file="${xerces-jar}" tofile="${lib-jars}/${xerces-impl-jar-name}"/>
         <copy file="${xercesxml-jar}" tofile="${lib-jars}/${xerces-api-jar-name}"/>
     </target>
-         
+
+    <target name="dex-compile-jars">
+        <dex-compile input="${lib-jars}/${xerces-impl-jar-name}" output="${lib-jars}/${xerces-impl-jar-name}"/>
+        <dex-compile input="${lib-jars}/${xerces-api-jar-name}" output="${lib-jars}/${xerces-api-jar-name}"/>
+    </target>
+
     <target name="lib-deps" if="externalize.deps">
         <copy file="${xerces-jar}" tofile="${lib-jars}/${xerces-impl-jar-name}"/>
         <copy file="${xercesxml-jar}" tofile="${lib-jars}/${xerces-api-jar-name}"/>
     </target>
-    
+
     <target name="xerces-done-check">
         <condition property="xerces-build-done">
             <and>
