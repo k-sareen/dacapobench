@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  -->
 <project name="luindex" default="all" basedir="../..">
@@ -19,8 +19,8 @@
     <target name="bm-build" depends="lucene">
         <mkdir dir="${bm-build-dir}"/>
         <javac fork="yes" executable="${jdk.11.home}/bin/javac" srcdir="${bm-src-dir}"
-           classpath="${harness-classpath}:${lucene-jars}/${lucene-core-jar-name}:${lucene-jars}/${lucene-demos-jar-name}" 
-           destdir="${bm-build-dir}" 
+           classpath="${harness-classpath}:${lucene-jars}/${lucene-core-jar-name}:${lucene-jars}/${lucene-demos-jar-name}"
+           destdir="${bm-build-dir}"
            includes="org/dacapo/luindex/*" debug="true" debuglevel="lines,vars,source"/>
     </target>
 
@@ -35,5 +35,9 @@
             <param name="target-file" value="luindex-data.zip"/>
         </antcall>
         <unzip dest="${bm-data}" src="${bm-downloads}/luindex-data.zip"/>
+    </target>
+
+    <target name="dex-compile-jars">
+        <dex-compile input="${bm-jars}/dacapo-${bm-name}.jar" output="${bm-jars}/dacapo-${bm-name}.jar"/>
     </target>
 </project>

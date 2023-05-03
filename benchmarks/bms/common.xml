@@ -131,30 +131,30 @@
 
 	<target name="build" depends="dacapo-harness, benchmark, config, yml, harness"/>
 
-	<target name="data-copy-checksum" depends="data">
-		<property name="bm-md5-tmp" value="${bm-files}/data/md5"/>
-		<!-- create checksum -->
-		<delete dir="${bm-md5-tmp}"/>
-		<checksum pattern="{0} {3}" todir="${bm-md5-tmp}">
-        	<fileset dir="${bm-files}/data" />
-    	</checksum>
-    	<concat destfile="${bm-md5}/${bm-name}.MD5">
-        	<fileset dir="${bm-md5-tmp}" />
-    	</concat>
-		<replace file="${bm-md5}/${bm-name}.MD5" token=" bms/${bm-name}/data/" value=" "/>
+        <target name="data-copy-checksum" depends="data">
+            <property name="bm-md5-tmp" value="${bm-files}/data/md5"/>
+            <!-- create checksum -->
+            <delete dir="${bm-md5-tmp}"/>
+            <checksum pattern="{0} {3}" todir="${bm-md5-tmp}">
+                <fileset dir="${bm-files}/data" />
+            </checksum>
+            <concat destfile="${bm-md5}/${bm-name}.MD5">
+                <fileset dir="${bm-md5-tmp}" />
+            </concat>
+            <replace file="${bm-md5}/${bm-name}.MD5" token=" bms/${bm-name}/data/" value=" "/>
 
-		<!-- copy files -->
-	    <copy todir="${bm-dat}/..">
-            <fileset dir="${bm-data}/.."/>
-        </copy>
-		<copy todir="${bm-out-jar}/..">
-            <fileset dir="${bm-jars}/.."/>
-        </copy>
+            <!-- copy files -->
+            <copy todir="${bm-dat}/..">
+                <fileset dir="${bm-data}/.."/>
+            </copy>
+            <copy todir="${bm-out-jar}/..">
+                <fileset dir="${bm-jars}/.."/>
+            </copy>
 
-		<!-- ensure files are read only -->
-		<chmod perm="ugo-w" type="both">
-			<fileset dir="${bm-dat}"/>
-		</chmod>
+            <!-- ensure files are read only -->
+            <chmod perm="ugo-w" type="both">
+                <fileset dir="${bm-dat}"/>
+            </chmod>
 	</target>
 
 	<target name="benchmark" depends="bm-build, jar, dex-compile-jars, data-copy-checksum, data-perms"/>

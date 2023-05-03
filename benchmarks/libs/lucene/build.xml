@@ -53,4 +53,36 @@
             </fileset>
         </copy>
     </target>
+
+    <target name="dex-compile-jars">
+        <dex-compile
+            input="${lib-jars}/lucene-core-${lucene-version-snapshot}.jar"
+            output="${lib-jars}/"/>
+        <jar jarfile="${lib-jars}/lucene-core-${lucene-version-snapshot}.jar" basedir="${lib-jars}" update="true">
+            <patternset>
+                <include name="classes.dex"/>
+            </patternset>
+        </jar>
+        <delete file="${lib-jars}/classes.dex"/>
+
+        <dex-compile
+            input="${lib-jars}/lucene-demo-${lucene-version-snapshot}.jar"
+            output="${lib-jars}/"/>
+        <jar jarfile="${lib-jars}/lucene-demo-${lucene-version-snapshot}.jar" basedir="${lib-jars}" update="true">
+            <patternset>
+                <include name="classes.dex"/>
+            </patternset>
+        </jar>
+        <delete file="${lib-jars}/classes.dex"/>
+
+        <dex-compile
+            input="${lib-jars}/lucene-queryparser-${lucene-version-snapshot}.jar"
+            output="${lib-jars}/"/>
+        <jar jarfile="${lib-jars}/lucene-queryparser-${lucene-version-snapshot}.jar" basedir="${lib-jars}" update="true">
+            <patternset>
+                <include name="classes.dex"/>
+            </patternset>
+        </jar>
+        <delete file="${lib-jars}/classes.dex"/>
+    </target>
 </project>

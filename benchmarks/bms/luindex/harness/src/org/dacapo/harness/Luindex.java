@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  */
 package org.dacapo.harness;
@@ -37,10 +37,10 @@ public class Luindex extends Benchmark {
     }
   }
 
-  @Override
-  protected void javaVersionCheck() {
-    assertJavaVersionGE(11, "Luindex requires Java 11 or newer.");
-  }
+  // @Override
+  // protected void javaVersionCheck() {
+  //   assertJavaVersionGE(11, "Luindex requires Java 11 or newer.");
+  // }
 
 
   public void cleanup() {

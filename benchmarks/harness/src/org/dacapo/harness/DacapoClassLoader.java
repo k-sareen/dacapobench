@@ -100,6 +100,7 @@ public class DacapoClassLoader extends URLClassLoader {
     for (URL url : urls) {
       DexClassLoader dexClassLoader = new DexClassLoader(url.getPath(), dexOutputPath.getAbsolutePath(), null, parent);
       dexClassLoaders[i] = dexClassLoader;
+      parent = dexClassLoader;
       i++;
     }
   }
@@ -159,7 +160,8 @@ public class DacapoClassLoader extends URLClassLoader {
         c = super.loadClass(name, resolve);
       } else {
         // Next, try to resolve it from the dacapo JAR files
-        for (DexClassLoader dexClassLoader : dexClassLoaders) {
+        for (int i = dexClassLoaders.length - 1; i >= 0; i--) {
+          DexClassLoader dexClassLoader = dexClassLoaders[i];
           try {
             c = dexClassLoader.loadClass(name);
           } catch (ClassNotFoundException e) {
