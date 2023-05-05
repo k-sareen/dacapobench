@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  -->
 <project name="libs">
@@ -64,7 +64,8 @@
     </target>
 
     <!-- janino -->
-    <property name="janino-jar" value="${lib-base}/janino/dist/jar/janino-2.5.15.jar"/>
+    <property name="janino-base" value="${lib-base}/janino/dist/jar"/>
+    <property name="janino-jar" value="${janino-base}/janino-2.5.15.jar"/>
     <target name="janino">
         <ant antfile="${lib-base}/janino/build.xml"/>
     </target>

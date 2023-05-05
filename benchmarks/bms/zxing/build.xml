@@ -48,8 +48,8 @@
     <target name="data">
         <copy todir="${bm-data}">
             <fileset dir="${bm-build-dir}/core/src/test/resources">
-                <include name="**/*.png"/> 
-                <include name="**/*.jpg"/> 
+                <include name="**/*.png"/>
+                <include name="**/*.jpg"/>
            </fileset>
         </copy>
     </target>
@@ -57,6 +57,16 @@
     <target name="jar">
         <copy file="${bm-build-dir}/javase/target/javase-${bm-version}-jar-with-dependencies.jar"
               todir="${bm-jars}"/>
+    </target>
+
+    <target name="dex-compile-jars">
+        <dex-compile input="${bm-jars}/javase-${bm-version}-jar-with-dependencies.jar" output="${bm-jars}/"/>
+        <jar jarfile="${bm-jars}/javase-${bm-version}-jar-with-dependencies.jar" basedir="${bm-jars}" update="true">
+            <patternset>
+                <include name="classes.dex"/>
+            </patternset>
+        </jar>
+        <delete file="${bm-jars}/classes.dex"/>
     </target>
 
 </project>

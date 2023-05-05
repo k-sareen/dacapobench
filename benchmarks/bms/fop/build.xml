@@ -59,4 +59,14 @@
             </fileset>
         </copy>
     </target>
+
+    <target name="dex-compile-jars">
+        <dex-compile input="${bm-jars}/fop.jar" output="${bm-jars}/"/>
+        <jar jarfile="${bm-jars}/fop.jar" basedir="${bm-jars}" update="true">
+            <patternset>
+                <include name="classes.dex"/>
+            </patternset>
+        </jar>
+        <delete file="${bm-jars}/classes.dex"/>
+    </target>
 </project>

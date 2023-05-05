@@ -3,7 +3,7 @@
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License v2.0.
  * You may obtain the license at
- * 
+ *
  *    http://www.opensource.org/licenses/apache2.0.php
  -->
 <project name="sunflow" default="all" basedir="../..">
@@ -54,6 +54,16 @@
                 <include name="resources/golden_*.png"/>
             </fileset>
         </jar>
+    </target>
+
+    <target name="dex-compile-jars">
+        <dex-compile input="${bm-jars}/${bm-name}-${bm-version}.jar" output="${bm-jars}/"/>
+        <jar jarfile="${bm-jars}/${bm-name}-${bm-version}.jar" basedir="${bm-jars}" update="true">
+            <patternset>
+                <include name="classes.dex"/>
+            </patternset>
+        </jar>
+        <delete file="${bm-jars}/classes.dex"/>
     </target>
 
 </project>
